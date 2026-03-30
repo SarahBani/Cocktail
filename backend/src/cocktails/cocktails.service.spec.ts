@@ -104,6 +104,7 @@ describe('CocktailsService', () => {
     it('should fall back to DB LIKE query when Elasticsearch throws', async () => {
       mockElasticSearch.fuzzySearch.mockRejectedValue(new Error('ES down'));
       mockQueryBuilder.getMany.mockResolvedValue([cocktailFixture]);
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       const result = await service.findAll('mojito');
 
