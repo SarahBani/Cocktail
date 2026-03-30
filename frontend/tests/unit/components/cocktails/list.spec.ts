@@ -1,17 +1,17 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
+import { ref } from 'vue';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import CocktailList from '@/components/cocktails/list.vue';
 import { useCocktailStore } from '@/stores/cocktailStore';
 
 jest.mock('@/stores/cocktailStore', () => ({
   useCocktailStore: jest.fn(),
-  storeToRefs: jest.requireActual('pinia').storeToRefs,
 }));
 
 const mockStore = {
-  cocktails: [],
-  loading: false,
+  cocktails: ref([]),
+  loading: ref(false),
   fetchCocktails: jest.fn(),
 };
 
@@ -35,10 +35,10 @@ describe('CocktailList', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     jest.clearAllMocks();
-    mockStore.cocktails = [];
-    mockStore.loading = false;
+    mockStore.cocktails.value = [];
+    mockStore.loading.value = false;
     mockStore.fetchCocktails.mockResolvedValue(undefined);
-    (useCocktailStore as jest.Mock).mockReturnValue(mockStore);
+    (useCocktailStore as unknown as jest.Mock).mockReturnValue(mockStore);
   });
 
   it('should call fetchCocktails on mount', async () => {
@@ -48,22 +48,22 @@ describe('CocktailList', () => {
   });
 
   it('should show the loading indicator while loading', () => {
-    mockStore.loading = true;
+    mockStore.loading.value = true;
     const wrapper = mountList();
     expect(wrapper.find('.status').text()).toContain('Loading');
   });
 
   it('should show "No cocktails found" when the list is empty', async () => {
-    mockStore.loading = false;
-    mockStore.cocktails = [];
+    mockStore.loading.value = false;
+    mockStore.cocktails.value = [];
     const wrapper = mountList();
     await flushPromises();
     expect(wrapper.find('.status').text()).toContain('No cocktails found');
   });
 
   it('should render a list item for each cocktail', async () => {
-    mockStore.loading = false;
-    mockStore.cocktails = [
+    mockStore.loading.value = false;
+    mockStore.cocktails.value = [
       { id: 1, title: 'Mojito', description: 'Mint', price: 8.5 },
       { id: 2, title: 'Daiquiri', description: 'Rum', price: 9.0 },
     ];
@@ -74,8 +74,8 @@ describe('CocktailList', () => {
   });
 
   it('should display the cocktail title and price for each item', async () => {
-    mockStore.loading = false;
-    mockStore.cocktails = [{ id: 1, title: 'Mojito', description: 'Mint', price: 8.5 }];
+    mockStore.loading.value = false;
+    mockStore.cocktails.value = [{ id: 1, title: 'Mojito', description: 'Mint', price: 8.5 }];
     const wrapper = mountList();
     await flushPromises();
     expect(wrapper.find('.cocktail-title').text()).toBe('Mojito');

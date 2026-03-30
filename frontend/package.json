@@ -19,6 +19,7 @@
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
     "@babel/preset-typescript": "^7.28.5",
+    "@types/jest": "^30.0.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
@@ -44,7 +45,9 @@
       "parser": "@babel/eslint-parser",
       "requireConfigFile": false,
       "babelOptions": {
-        "presets": ["@babel/preset-typescript"]
+        "presets": [
+          "@babel/preset-typescript"
+        ]
       }
     },
     "rules": {}

@@ -62,6 +62,7 @@ describe('CocktailsService', () => {
     it('should not throw when Elasticsearch sync fails on startup', async () => {
       mockRepository.find.mockResolvedValue([cocktailFixture]);
       mockElasticSearch.bulkIndex.mockRejectedValue(new Error('ES unavailable'));
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       await expect(service.onModuleInit()).resolves.not.toThrow();
     });
@@ -174,6 +175,7 @@ describe('CocktailsService', () => {
       mockRepository.findOneBy.mockResolvedValue(null);
       mockRepository.insert.mockResolvedValue({ identifiers: [{ id: 5 }] });
       mockElasticSearch.indexCocktail.mockRejectedValue(new Error('ES down'));
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       await expect(service.create(newCocktail)).resolves.not.toThrow();
     });

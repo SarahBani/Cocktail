@@ -1,0 +1,1 @@
+global.Vue = require('vue');
