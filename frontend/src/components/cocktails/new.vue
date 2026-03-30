@@ -1,91 +1,153 @@
 <template>
   <div>
-    <form @submit.prevent="submitForm">
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" v-model="form.title" id="title" required>
+    <h1>New Cocktail</h1>
+    <form @submit.prevent="submitForm" class="cocktail-form">
+      <div class="field">
+        <label for="title">Title</label>
+        <input
+          type="text"
+          v-model="form.title"
+          id="title"
+          required
+          placeholder="e.g. Mojito"
+        />
       </div>
-      <div>
-        <label for="price">Price:</label>
-        <input type="number" v-model="form.price" id="price" required>
+      <div class="field">
+        <label for="price">Price (€)</label>
+        <input
+          type="number"
+          v-model="form.price"
+          id="price"
+          required
+          placeholder="e.g. 9.99"
+          step="0.01"
+        />
       </div>
-      <div>
-        <label for="description">Description:</label>
-        <textarea v-model="form.description" id="description" required></textarea>
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea
+          v-model="form.description"
+          id="description"
+          required
+          placeholder="Describe the cocktail…"
+          rows="4"
+        ></textarea>
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit">Add Cocktail</button>
+      <router-link to="/" class="back-link">← Back to list</router-link>
     </form>
   </div>
 </template>
 
 <script>
+import { ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { useCocktailStore } from "@/stores/cocktailStore";
+import { useNotificationStore } from "@/stores/notificationStore";
+
 export default {
-  name: 'ListCocktail',
-  data() {
-    return {
-      form: {
-        title: '',
-        price: '',
-        description: ''
+  name: "CocktailNew",
+  setup() {
+    const cocktailStore = useCocktailStore();
+    const { type } = storeToRefs(useNotificationStore());
+
+    const form = ref({ title: "", price: "", description: "" });
+
+    watch(type, (val) => {
+      if (val === "success") {
+        form.value = { title: "", price: "", description: "" };
       }
-    };
+    });
+
+    const submitForm = () => cocktailStore.createCocktail(form.value);
+
+    return { form, submitForm };
   },
-  methods: {
-    async submitForm() {
-      try {
-        const response = await fetch('http://localhost:3000/cocktails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.form)
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        console.log('Form submitted successfully:', data);
-        // Clear the form
-        this.form.title = '';
-        this.form.price = '';
-        this.form.description = '';
-      } catch (error) {
-        console.error('There was an error submitting the form:', error);
-        // Handle the error (e.g., show an error message)
-      }
-    }
-  }
 };
 </script>
 
 <style scoped>
-/* Optional: Add some basic styling */
-form {
-  max-width: 400px;
-  margin: 0 auto;
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #c9a84c;
+  margin-bottom: 1.5rem;
 }
-div {
-  margin-bottom: 10px;
+
+.cocktail-form {
+  background: #1a1a2e;
+  border: 1px solid #c9a84c22;
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
 label {
-  display: block;
-  margin-bottom: 5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #a89070;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
-input, textarea {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
+
+input,
+textarea {
+  background: #0f0f1a;
+  border: 1px solid #c9a84c44;
+  border-radius: 6px;
+  color: #e8e0d5;
+  font-size: 0.95rem;
+  padding: 0.65rem 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  resize: vertical;
 }
+
+input::placeholder,
+textarea::placeholder {
+  color: #5a5060;
+}
+input:focus,
+textarea:focus {
+  border-color: #c9a84c;
+}
+
 button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: #c9a84c;
+  color: #0f0f1a;
+  font-weight: 700;
+  font-size: 1rem;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background 0.2s;
 }
+
 button:hover {
-  background-color: #0056b3;
+  background: #e0be6a;
+}
+
+.back-link {
+  margin-top: 0.5rem;
+  color: #a89070;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #c9a84c;
 }
 </style>

@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import CocktailList from '@/components/cocktails/list.vue';
 import CocktailNew from '@/components/cocktails/new.vue';
+import CocktailDetails from '@/components/cocktails/details.vue';
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     path: '/new',
     name: 'CocktailNew',
     component: CocktailNew,
+  },
+  {
+    path: '/cocktails/:id',
+    name: 'CocktailDetails',
+    component: CocktailDetails,
   },
 ];
 
