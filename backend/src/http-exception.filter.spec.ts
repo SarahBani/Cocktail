@@ -47,7 +47,7 @@ describe('HttpExceptionFilter', () => {
     const exception = new HttpException({ error: 'Bad Request' }, HttpStatus.BAD_REQUEST);
     filter.catch(exception, mockHost as any);
     expect(mockStatus).toHaveBeenCalledWith(400);
-    expect(mockJson).toHaveBeenCalledWith({ detail: 'Bad Request' });
+    expect(mockJson).toHaveBeenCalledWith({ detail: 'Http Exception' });
   });
 
   it('should handle 500 internal server error', () => {

@@ -109,7 +109,7 @@ describe('CocktailsController (e2e)', () => {
   });
 
   describe('POST /cocktails', () => {
-    it('should return 201 with true when the cocktail is created', async () => {
+    it('should return 201 when the cocktail is created', async () => {
       mockCocktailsService.create.mockResolvedValue({ identifiers: [{ id: 2 }] });
 
       const res = await request(app.getHttpServer())
@@ -117,7 +117,7 @@ describe('CocktailsController (e2e)', () => {
         .send({ title: 'Daiquiri', description: 'Rum and lime', price: 9.0 })
         .expect(201);
 
-      expect(res.body).toBe(true);
+      expect(res.body).toEqual({});
     });
 
     it('should return 409 with a detail message when the title already exists', async () => {

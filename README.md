@@ -41,6 +41,7 @@ A full-stack web application for managing cocktail recipes. Features a searchabl
 | [Axios](https://axios-http.com/) | 1.x | HTTP client |
 | [Jest](https://jestjs.io/) | 29.x | Unit testing |
 | [Vue Test Utils](https://test-utils.vuejs.org/) | 2.x | Component testing |
+| [Cypress](https://www.cypress.io/) | 13.x | E2E browser testing |
 
 ### Infrastructure
 | Technology | Purpose |
@@ -258,7 +259,14 @@ fullstack-nodejs-assessment/
     │   └── stores/
     │       ├── cocktailStore.ts      # Pinia: cocktail state
     │       └── notificationStore.ts  # Pinia: toast notifications
-    ├── tests/unit/             # Frontend unit tests
+    ├── tests/unit/             # Jest unit tests
+    │   ├── stores/             #   notificationStore, cocktailStore
+    │   ├── services/           #   cocktailService (axios-mock-adapter)
+    │   └── components/         #   toast, list, new, details
+    ├── cypress/
+    │   └── e2e/
+    │       └── cocktails.cy.js # Cypress E2E tests
+    ├── cypress.config.js
     └── Dockerfile
 ```
 
@@ -289,7 +297,7 @@ npm run test:e2e
 ```bash
 cd frontend
 
-# Unit tests
+# Unit tests (Jest + Vue Test Utils)
 npm test
 
 # Unit tests in watch mode
@@ -297,21 +305,48 @@ npm run test:watch
 
 # Coverage report
 npm run test:cov
+
+# E2E tests — headless (requires dev server on :8080)
+npm run serve &
+npm run test:e2e
+
+# E2E tests — interactive Cypress UI
+npm run test:e2e:open
 ```
+
+> **Note:** Cypress e2e tests intercept all API calls with `cy.intercept`, so the backend does not need to be running. Only the frontend dev server (`npm run serve`) is required.
+
+---
 
 ### What is tested
 
-**Backend unit tests** cover:
-- Controller route handlers with mocked service
-- Service methods with mocked TypeORM repository and Elasticsearch
-- Duplicate title conflict (409)
-- Missing cocktail (404)
-- Elasticsearch fallback to database on failure
-- Input validation (`ParseIntPipe` on `:id`)
+#### Backend unit tests (`npm test`)
+| File | Covers |
+|---|---|
+| `http-exception.filter.spec.ts` | Error shape (`detail` field), status codes, string vs object responses |
+| `elasticsearch.service.spec.ts` | `checkConnection`, `indexCocktail`, `bulkIndex` (empty / errors), `fuzzySearch` |
+| `cocktails.service.spec.ts` | ES search, DB fallback on ES failure, conflict detection, graceful ES indexing failure |
+| `cocktails.controller.spec.ts` | All 3 endpoints, 404 propagation, `true` return on create |
 
-**Backend E2E tests** cover the full HTTP request/response cycle.
+#### Backend integration tests (`npm run test:e2e`)
+| File | Covers |
+|---|---|
+| `test/cocktails.e2e-spec.ts` | Full HTTP pipeline via supertest — `ParseIntPipe` (400 on bad id), 404/409 response body shape with `HttpExceptionFilter` |
 
-**Frontend unit tests** cover:
-- Vue components (list, new, details, toast)
-- Pinia stores (cocktail state, notification state)
-- API service functions with mocked Axios
+#### Frontend unit tests (`npm test`)
+| File | Covers |
+|---|---|
+| `stores/notificationStore.spec.ts` | `setError`, `setSuccess`, `clear`, overwrite behaviour |
+| `stores/cocktailStore.spec.ts` | All 3 actions, loading flag, error→notification wiring |
+| `services/cocktailService.spec.ts` | GET/POST calls, 404/409 error `detail` propagation via axios-mock-adapter |
+| `components/toast.spec.ts` | Visibility, `error`/`success` CSS class, click to dismiss |
+| `components/cocktails/list.spec.ts` | Loading state, empty state, item rendering, search input |
+| `components/cocktails/new.spec.ts` | Form submit, reset on success notification, no reset on error |
+| `components/cocktails/details.spec.ts` | Loading state, cocktail data rendered, error state |
+
+#### Frontend E2E tests (`npm run test:e2e`)
+| Suite | Covers |
+|---|---|
+| **Cocktail List** | Page heading, card rendering, title/price display, empty state, search filtering, navigate to detail |
+| **Cocktail Details** | Title/description/price rendered, error toast on 404, back link navigation |
+| **New Cocktail form** | Field rendering, success toast + form reset, conflict error toast, back link |
