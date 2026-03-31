@@ -11,7 +11,6 @@ jest.mock('@/stores/cocktailStore', () => ({
 const mockStore = {
   loading: false,
   selected: null as any,
-  error: null as string | null,
   fetchCocktail: jest.fn(),
 };
 
@@ -43,7 +42,6 @@ describe('CocktailDetails', () => {
     jest.clearAllMocks();
     mockStore.loading = false;
     mockStore.selected = null;
-    mockStore.error = null;
     mockStore.fetchCocktail.mockResolvedValue(undefined);
     (useCocktailStore as jest.Mock).mockReturnValue(mockStore);
   });
@@ -70,22 +68,21 @@ describe('CocktailDetails', () => {
     expect(wrapper.find('.price-badge').text()).toContain('8.5');
   });
 
-  it('should show the error message when store.error is set', async () => {
-    mockStore.error = 'Cocktail not found';
+  it('should show NotFound when the cocktail is not found', async () => {
+    mockStore.selected = null;
     const wrapper = await mountDetails('999');
     await flushPromises();
 
-    expect(wrapper.find('.error-text').text()).toContain('Cocktail not found');
+    expect(wrapper.find('.not-found').exists()).toBe(true);
+    expect(wrapper.find('.detail-card').exists()).toBe(false);
   });
 
-  it('should render nothing meaningful when not loading, no error, and no selected', async () => {
-    mockStore.loading = false;
+  it('should show NotFound with a descriptive message when no cocktail is selected', async () => {
     mockStore.selected = null;
-    mockStore.error = null;
     const wrapper = await mountDetails();
     await flushPromises();
 
-    expect(wrapper.find('.detail-card').exists()).toBe(false);
-    expect(wrapper.find('.error-text').exists()).toBe(false);
+    expect(wrapper.find('.not-found').exists()).toBe(true);
+    expect(wrapper.html()).toContain("This cocktail doesn't exist");
   });
 });

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { ref, watch, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useCocktailStore } from "@/stores/cocktailStore";
 import { useNotificationStore } from "@/stores/notificationStore";
@@ -49,7 +49,10 @@ export default {
   name: "CocktailNew",
   setup() {
     const cocktailStore = useCocktailStore();
-    const { type } = storeToRefs(useNotificationStore());
+    const notificationStore = useNotificationStore();
+    const { type } = storeToRefs(notificationStore);
+
+    onUnmounted(() => notificationStore.clear());
 
     const form = ref({ title: "", price: "", description: "" });
 
