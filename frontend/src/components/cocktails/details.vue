@@ -1,8 +1,8 @@
 <template>
   <div>
     <div v-if="store.loading" class="status">Loading…</div>
-    <div v-else-if="store.error" class="status error-text">{{ store.error }}</div>
-    <div v-else-if="store.selected" class="detail-card">
+    <NotFound v-else-if="!store.selected" message="This cocktail doesn't exist" />
+    <div v-else class="detail-card">
       <div class="hero-img" :style="heroStyle(store.selected.id)">🍹</div>
       <div class="detail-body">
         <h1>{{ store.selected.title }}</h1>
@@ -18,9 +18,11 @@
 import { onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useCocktailStore } from "@/stores/cocktailStore";
+import NotFound from "@/components/not-found.vue";
 
 export default {
   name: "CocktailDetails",
+  components: { NotFound },
   setup() {
     const store = useCocktailStore();
     const route = useRoute();
@@ -38,7 +40,6 @@ export default {
 
 <style scoped>
 .status { color: #a89070; font-style: italic; }
-.error-text { color: #e53e3e; }
 
 .detail-card {
   background: #1a1a2e;

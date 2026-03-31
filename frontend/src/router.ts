@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import CocktailList from '@/components/cocktails/list.vue';
 import CocktailNew from '@/components/cocktails/new.vue';
 import CocktailDetails from '@/components/cocktails/details.vue';
+import NotFound from '@/components/not-found.vue';
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
     path: '/cocktails/:id',
     name: 'CocktailDetails',
     component: CocktailDetails,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
   },
 ];
 
