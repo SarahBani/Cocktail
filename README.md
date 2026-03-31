@@ -249,6 +249,7 @@ fullstack-nodejs-assessment/
     │   ├── router.ts           # Route definitions
     │   ├── components/
     │   │   ├── toast.vue       # Toast notification
+    │   │   ├── not-found.vue   # 404 / not-found view
     │   │   └── cocktails/
     │   │       ├── list.vue    # Cocktail list + search
     │   │       ├── new.vue     # Create cocktail form
@@ -342,11 +343,11 @@ npm run test:e2e:open
 | `components/toast.spec.ts` | Visibility, `error`/`success` CSS class, click to dismiss |
 | `components/cocktails/list.spec.ts` | Loading state, empty state, item rendering, search input |
 | `components/cocktails/new.spec.ts` | Form submit, reset on success notification, no reset on error |
-| `components/cocktails/details.spec.ts` | Loading state, cocktail data rendered, error state |
+| `components/cocktails/details.spec.ts` | Loading state, cocktail data rendered, not-found view when no cocktail |
 
 #### Frontend E2E tests (`npm run test:e2e`)
 | Suite | Covers |
 |---|---|
 | **Cocktail List** | Page heading, card rendering, title/price display, empty state, search filtering, navigate to detail |
-| **Cocktail Details** | Title/description/price rendered, error toast on 404, back link navigation |
+| **Cocktail Details** | Title/description/price rendered, not-found view + error toast on 404, back link navigation |
 | **New Cocktail form** | Field rendering, success toast + form reset, conflict error toast, back link |
