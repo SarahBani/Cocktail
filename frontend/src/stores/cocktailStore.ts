@@ -25,8 +25,8 @@ export const useCocktailStore = defineStore("cocktails", {
       try {
         const response = await getCocktails(search);
         this.cocktails = response.data;
-      } catch (err: { message: string }) {
-        useNotificationStore().setError(err.message);
+      } catch (err: unknown) {
+        useNotificationStore().setError((err as Error).message);
       } finally {
         this.loading = false;
       }
@@ -37,8 +37,8 @@ export const useCocktailStore = defineStore("cocktails", {
       try {
         const response = await getCocktail(id);
         this.selected = response.data;
-      } catch (err: { message: string }) {
-        useNotificationStore().setError(err.message);
+      } catch (err: unknown) {
+        // useNotificationStore().setError((err as Error).message);
       } finally {
         this.loading = false;
       }
@@ -48,8 +48,8 @@ export const useCocktailStore = defineStore("cocktails", {
       try {
         await createCocktail(data);
         useNotificationStore().setSuccess("Cocktail created successfully!");
-      } catch (err: { message: string }) {
-        useNotificationStore().setError(err.message);
+      } catch (err: unknown) {
+        useNotificationStore().setError((err as Error).message);
       } finally {
         this.loading = false;
       }

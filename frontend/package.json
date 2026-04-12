@@ -53,7 +53,10 @@
         ]
       }
     },
-    "rules": {}
+    "rules": {
+      "no-unused-vars": "off",
+      "no-undef": "off"
+    }
   },
   "browserslist": [
     "> 1%",

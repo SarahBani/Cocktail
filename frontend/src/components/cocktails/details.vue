@@ -26,8 +26,12 @@ export default {
   setup() {
     const store = useCocktailStore();
     const route = useRoute();
-    onMounted(() => store.fetchCocktail(route.params.id));
-
+    onMounted(() => {
+      const id = Number(route.params.id);
+      if (!Number.isInteger(id) || id <= 0) return;
+      store.fetchCocktail(id);
+    });
+    
     const heroStyle = (id) => {
       const hue = (id * 67) % 360;
       return { background: `linear-gradient(135deg, hsl(${hue},70%,30%), hsl(${(hue + 40) % 360},80%,20%))` };

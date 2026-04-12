@@ -96,7 +96,7 @@ That's all you need — no local Node.js installation required.
 **1. Clone the repository**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/SarahBani/Cocktail/
 cd fullstack-nodejs-assessment
 ```
 

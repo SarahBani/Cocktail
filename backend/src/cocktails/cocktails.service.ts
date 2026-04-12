@@ -8,13 +8,13 @@ import { ElasticSearch } from '../elasticsearch.service';
 export class CocktailsService implements OnModuleInit {
   constructor(
     @InjectRepository(Cocktails)
-    private usersRepository: Repository<Cocktails>,
+    private cocktailsRepository: Repository<Cocktails>,
     private readonly elasticSearch: ElasticSearch,
   ) {}
 
   async onModuleInit() {
     try {
-      const cocktails = await this.usersRepository.find();
+      const cocktails = await this.cocktailsRepository.find();
       await this.elasticSearch.bulkIndex(cocktails);
       console.log(`Indexed ${cocktails.length} cocktails in Elasticsearch`);
     } catch (error) {
@@ -23,11 +23,11 @@ export class CocktailsService implements OnModuleInit {
   }
 
   async findAll(search?: string): Promise<Cocktails[]> {
-    if (!search) return this.usersRepository.find();
+    if (!search) return this.cocktailsRepository.find();
     try {
       const ids = await this.elasticSearch.fuzzySearch(search);
       if (ids.length > 0) {
-        return this.usersRepository
+        return this.cocktailsRepository
           .createQueryBuilder('cocktail')
           .where('cocktail.id IN (:...ids)', { ids })
           .getMany();
@@ -35,7 +35,7 @@ export class CocktailsService implements OnModuleInit {
     } catch (error) {
       console.error('Elasticsearch search failed, falling back to DB search:', error);
     }
-    return this.usersRepository
+    return this.cocktailsRepository
       .createQueryBuilder('cocktail')
       .where(
         'LOWER(cocktail.title) LIKE :search OR LOWER(cocktail.description) LIKE :search',
@@ -45,15 +45,15 @@ export class CocktailsService implements OnModuleInit {
   }
 
   findOne(id: number): Promise<Cocktails | null> {
-    return this.usersRepository.findOneBy({ id });
+    return this.cocktailsRepository.findOneBy({ id });
   }
 
   async create(cocktail: Cocktails) {
-    const existing = await this.usersRepository.findOneBy({ title: cocktail.title });
+    const existing = await this.cocktailsRepository.findOneBy({ title: cocktail.title });
     if (existing) {
       throw new ConflictException(`A cocktail with title "${cocktail.title}" already exists`);
     }
-    const result = await this.usersRepository.insert(cocktail);
+    const result = await this.cocktailsRepository.insert(cocktail);
     const id = result.identifiers[0].id;
     try {
       await this.elasticSearch.indexCocktail({ id, title: cocktail.title, description: cocktail.description });
