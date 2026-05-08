@@ -4,15 +4,18 @@ import { ref } from 'vue';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import CocktailList from '@/components/cocktail/list.vue';
 import { useCocktailStore } from '@/stores/cocktailStore';
+import { DEBOUNCE_DELAY } from '@/constants';
+import type { Cocktail } from '@/services/cocktailService';
 
 jest.mock('@/stores/cocktailStore', () => ({
   useCocktailStore: jest.fn(),
 }));
 
 const mockStore = {
-  cocktails: ref([]),
+  cocktails: ref<Cocktail[]>([]),
   loading: ref(false),
   fetchCocktails: jest.fn(),
+  deleteCocktail: jest.fn(),
 };
 
 const router = createRouter({
@@ -20,6 +23,7 @@ const router = createRouter({
   routes: [
     { path: '/', component: { template: '<div />' } },
     { path: '/cocktail/:id', name: 'CocktailDetails', component: { template: '<div />' } },
+    { path: '/cocktail/:id/edit', name: 'CocktailEdit', component: { template: '<div />' } },
   ],
 });
 
@@ -38,6 +42,7 @@ describe('CocktailList', () => {
     mockStore.cocktails.value = [];
     mockStore.loading.value = false;
     mockStore.fetchCocktails.mockResolvedValue(undefined);
+    mockStore.deleteCocktail.mockResolvedValue(undefined);
     (useCocktailStore as unknown as jest.Mock).mockReturnValue(mockStore);
   });
 
@@ -82,15 +87,55 @@ describe('CocktailList', () => {
     expect(wrapper.find('.cocktail-price').text()).toContain('8.5');
   });
 
-  it('should call fetchCocktails with the search query on input', async () => {
-    const wrapper = mountList();
-    await flushPromises();
-    jest.clearAllMocks();
+  describe('search debounce', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
 
-    const input = wrapper.find('input#search');
-    await input.setValue('mojito');
-    await input.trigger('input');
+    it('should not call fetchCocktails immediately on input', async () => {
+      jest.useFakeTimers();
+      const wrapper = mountList();
+      await flushPromises();
+      jest.clearAllMocks();
 
-    expect(mockStore.fetchCocktails).toHaveBeenCalledWith('mojito');
+      await wrapper.find('input#search').setValue('mojito');
+      await wrapper.find('input#search').trigger('input');
+
+      expect(mockStore.fetchCocktails).not.toHaveBeenCalled();
+    });
+
+    it('should call fetchCocktails with the search query after the debounce delay', async () => {
+      jest.useFakeTimers();
+      const wrapper = mountList();
+      await flushPromises();
+      jest.clearAllMocks();
+
+      await wrapper.find('input#search').setValue('mojito');
+      await wrapper.find('input#search').trigger('input');
+      jest.advanceTimersByTime(DEBOUNCE_DELAY);
+
+      expect(mockStore.fetchCocktails).toHaveBeenCalledWith('mojito');
+    });
+
+    it('should only fire once when input events arrive within the debounce window', async () => {
+      jest.useFakeTimers();
+      const wrapper = mountList();
+      await flushPromises();
+      jest.clearAllMocks();
+
+      const input = wrapper.find('input#search');
+      await input.setValue('m');
+      await input.trigger('input');
+      jest.advanceTimersByTime(100);
+      await input.setValue('mo');
+      await input.trigger('input');
+      jest.advanceTimersByTime(100);
+      await input.setValue('mojito');
+      await input.trigger('input');
+      jest.advanceTimersByTime(DEBOUNCE_DELAY);
+
+      expect(mockStore.fetchCocktails).toHaveBeenCalledTimes(1);
+      expect(mockStore.fetchCocktails).toHaveBeenCalledWith('mojito');
+    });
   });
 });

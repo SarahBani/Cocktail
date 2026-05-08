@@ -134,6 +134,18 @@ Visit [http://localhost:8080](http://localhost:8080) in your browser.
 
 **Swagger API docs** are available at [http://localhost:3000/api](http://localhost:3000/api).
 
+**Update only the frontend container/image**
+
+```bash
+docker-compose up --build frontend
+```
+
+If the frontend container is already running and you only need a restart (no rebuild):
+
+```bash
+docker-compose restart frontend
+```
+
 ---
 
 **Stop all services**
@@ -164,7 +176,12 @@ docker-compose up postgres elasticsearch
 
 ```bash
 cd backend
-cp .env.example .env   # or set variables manually (see below)
+# macOS/Linux:
+cp .env.example .env
+
+# Windows PowerShell:
+Copy-Item .env.example .env
+
 npm install
 npm start
 ```
@@ -278,6 +295,8 @@ fullstack-nodejs-assessment/
     │   │   ├── not-found.vue   # 404 / not-found view
     │   │   └── cocktail/
     │   │       ├── list.vue    # Cocktail list + search
+    │   │       ├── search.vue  # Search input component
+    │   │       ├── cocktail-item.vue # Cocktail row/card component
     │   │       ├── new.vue     # Create cocktail form
     │   │       ├── edit.vue    # Edit cocktail form
     │   │       └── details.vue # Cocktail detail view
@@ -335,7 +354,7 @@ npm run test:watch
 npm run test:cov
 
 # E2E tests — headless (requires dev server on :8080)
-npm run serve &
+# Start `npm run serve` in one terminal, then run in a second terminal:
 npm run test:e2e
 
 # E2E tests — interactive Cypress UI
@@ -378,3 +397,27 @@ npm run test:e2e:open
 | **Cocktail List** | Page heading, card rendering, title/price display, empty state, search filtering, navigate to detail |
 | **Cocktail Details** | Title/description/price rendered, not-found view + error toast on 404, back link navigation |
 | **New Cocktail form** | Field rendering, success toast + form reset, conflict error toast, back link |
+
+---
+
+## Troubleshooting
+
+### Frontend build error: `Unexpected token ... _ctx: any` or `Cannot read properties of null (reading 'content')`
+
+This usually means the Vue SFC script style and the Babel/Vue loader pipeline are out of sync.
+
+Use this checklist:
+
+1. Keep SFC scripts consistent with the current build setup (avoid mixing `script setup` TypeScript macros with non-compatible parser config).
+2. Rebuild the frontend image to ensure updated config is inside the container:
+
+```bash
+docker-compose up --build frontend
+```
+
+3. If stale containers still hold old state, recreate the frontend service:
+
+```bash
+docker-compose rm -sf frontend
+docker-compose up --build frontend
+```

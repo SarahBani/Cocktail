@@ -1,6 +1,11 @@
-import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { getCocktails, getCocktail, createCocktail } from '@/services/cocktailService';
+import {
+  getCocktails,
+  getCocktail,
+  createCocktail,
+  updateCocktail,
+  deleteCocktail,
+} from '@/services/cocktailService';
 import apiClient from '@/services/apiClient';
 
 const mock = new MockAdapter(apiClient);
@@ -69,6 +74,37 @@ describe('cocktailService', () => {
       mock.onPost('/cocktail').reply(409, { detail: 'A cocktail with title "Mojito" already exists' });
 
       await expect(createCocktail(payload)).rejects.toThrow('A cocktail with title "Mojito" already exists');
+    });
+  });
+
+  describe('updateCocktail', () => {
+    it('should PUT the updated data and return the response', async () => {
+      const updated = { ...cocktailFixture, price: 10.0 };
+      mock.onPut('/cocktail/1', { price: 10.0 }).reply(200, updated);
+
+      const res = await updateCocktail(1, { price: 10.0 });
+
+      expect(res.data).toEqual(updated);
+    });
+
+    it('should reject on a 404', async () => {
+      mock.onPut('/cocktail/999').reply(404);
+
+      await expect(updateCocktail(999, { price: 10.0 })).rejects.toThrow();
+    });
+  });
+
+  describe('deleteCocktail', () => {
+    it('should send a DELETE request for the given id', async () => {
+      mock.onDelete('/cocktail/1').reply(204);
+
+      await expect(deleteCocktail(1)).resolves.not.toThrow();
+    });
+
+    it('should reject on a 404', async () => {
+      mock.onDelete('/cocktail/999').reply(404);
+
+      await expect(deleteCocktail(999)).rejects.toThrow();
     });
   });
 });

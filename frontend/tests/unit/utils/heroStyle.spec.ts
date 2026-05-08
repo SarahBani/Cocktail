@@ -1,4 +1,5 @@
 import { heroStyle } from '@/utils/heroStyle';
+import { HUE_MULTIPLIER, HUE_OFFSET, HUE_RANGE } from '@/constants';
 
 describe('heroStyle', () => {
   it('returns an object with a background property', () => {
@@ -19,11 +20,13 @@ describe('heroStyle', () => {
     expect(heroStyle(1).background).not.toBe(heroStyle(2).background);
   });
 
-  it('wraps hue within 0–359', () => {
-    // id=6 → hue = (6*67)%360 = 42, secondary = 82
-    const { background } = heroStyle(6);
-    expect(background).toContain('hsl(42,');
-    expect(background).toContain('hsl(82,');
+  it('uses the correct hue values derived from constants', () => {
+    const id = 6;
+    const expectedHue = (id * HUE_MULTIPLIER) % HUE_RANGE;
+    const expectedSecondary = (expectedHue + HUE_OFFSET) % HUE_RANGE;
+    const { background } = heroStyle(id);
+    expect(background).toContain(`hsl(${expectedHue},`);
+    expect(background).toContain(`hsl(${expectedSecondary},`);
   });
 
   it('handles id=0 without errors', () => {

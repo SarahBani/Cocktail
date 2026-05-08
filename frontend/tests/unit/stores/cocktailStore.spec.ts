@@ -8,6 +8,8 @@ jest.mock('@/services/cocktailService');
 const mockedGetCocktails = cocktailService.getCocktails as jest.MockedFunction<typeof cocktailService.getCocktails>;
 const mockedGetCocktail = cocktailService.getCocktail as jest.MockedFunction<typeof cocktailService.getCocktail>;
 const mockedCreateCocktail = cocktailService.createCocktail as jest.MockedFunction<typeof cocktailService.createCocktail>;
+const mockedUpdateCocktail = cocktailService.updateCocktail as jest.MockedFunction<typeof cocktailService.updateCocktail>;
+const mockedDeleteCocktail = cocktailService.deleteCocktail as jest.MockedFunction<typeof cocktailService.deleteCocktail>;
 
 const cocktailFixture = { id: 1, title: 'Mojito', description: 'Mint cocktail', price: 8.5 };
 
@@ -82,15 +84,14 @@ describe('cocktailStore', () => {
       expect(mockedGetCocktail).toHaveBeenCalledWith(2);
     });
 
-    it('should set an error notification on failure', async () => {
+    it('should leave selected null and reset loading on failure', async () => {
       mockedGetCocktail.mockRejectedValue(new Error('Not found'));
       const store = useCocktailStore();
-      const notification = useNotificationStore();
 
       await store.fetchCocktail(999);
 
-      expect(notification.type).toBe('error');
-      expect(notification.message).toBe('Not found');
+      expect(store.selected).toBeNull();
+      expect(store.loading).toBe(false);
     });
   });
 
@@ -116,6 +117,80 @@ describe('cocktailStore', () => {
 
       expect(notification.type).toBe('error');
       expect(notification.message).toBe('Title already taken');
+    });
+  });
+
+  describe('updateCocktail', () => {
+    it('should update selected and the cocktails list on success', async () => {
+      const updated = { ...cocktailFixture, price: 10.0 };
+      mockedUpdateCocktail.mockResolvedValue({ data: updated } as any);
+      const store = useCocktailStore();
+      store.cocktails = [cocktailFixture];
+      store.selected = cocktailFixture;
+
+      await store.updateCocktail(1, { price: 10.0 });
+
+      expect(store.selected).toEqual(updated);
+      expect(store.cocktails[0]).toEqual(updated);
+    });
+
+    it('should set a success notification after update', async () => {
+      mockedUpdateCocktail.mockResolvedValue({ data: cocktailFixture } as any);
+      const store = useCocktailStore();
+      const notification = useNotificationStore();
+
+      await store.updateCocktail(1, { price: 10.0 });
+
+      expect(notification.type).toBe('success');
+      expect(notification.message).toBe('Cocktail updated successfully!');
+    });
+
+    it('should set an error notification when update fails', async () => {
+      mockedUpdateCocktail.mockRejectedValue(new Error('Not found'));
+      const store = useCocktailStore();
+      const notification = useNotificationStore();
+
+      await store.updateCocktail(999, { price: 10.0 });
+
+      expect(notification.type).toBe('error');
+      expect(notification.message).toBe('Not found');
+      expect(store.loading).toBe(false);
+    });
+  });
+
+  describe('deleteCocktail', () => {
+    it('should remove the cocktail from the list on success', async () => {
+      mockedDeleteCocktail.mockResolvedValue({ data: undefined } as any);
+      const store = useCocktailStore();
+      store.cocktails = [cocktailFixture, { id: 2, title: 'Daiquiri', description: 'Rum', price: 9.0 }];
+
+      await store.deleteCocktail(1);
+
+      expect(store.cocktails).toHaveLength(1);
+      expect(store.cocktails[0].id).toBe(2);
+    });
+
+    it('should set a success notification after deletion', async () => {
+      mockedDeleteCocktail.mockResolvedValue({ data: undefined } as any);
+      const store = useCocktailStore();
+      const notification = useNotificationStore();
+
+      await store.deleteCocktail(1);
+
+      expect(notification.type).toBe('success');
+      expect(notification.message).toBe('Cocktail deleted successfully!');
+    });
+
+    it('should set an error notification when deletion fails', async () => {
+      mockedDeleteCocktail.mockRejectedValue(new Error('Server error'));
+      const store = useCocktailStore();
+      const notification = useNotificationStore();
+
+      await store.deleteCocktail(1);
+
+      expect(notification.type).toBe('error');
+      expect(notification.message).toBe('Server error');
+      expect(store.loading).toBe(false);
     });
   });
 });

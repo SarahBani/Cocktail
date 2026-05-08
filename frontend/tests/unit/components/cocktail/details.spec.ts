@@ -12,6 +12,7 @@ const mockStore = {
   loading: false,
   selected: null as any,
   fetchCocktail: jest.fn(),
+  deleteCocktail: jest.fn(),
 };
 
 const cocktailFixture = {
@@ -26,6 +27,7 @@ const router = createRouter({
   routes: [
     { path: '/', component: { template: '<div />' } },
     { path: '/cocktail/:id', name: 'CocktailDetails', component: { template: '<div />' } },
+    { path: '/cocktail/:id/edit', name: 'CocktailEdit', component: { template: '<div />' } },
   ],
 });
 
@@ -43,13 +45,26 @@ describe('CocktailDetails', () => {
     mockStore.loading = false;
     mockStore.selected = null;
     mockStore.fetchCocktail.mockResolvedValue(undefined);
+    mockStore.deleteCocktail.mockResolvedValue(undefined);
     (useCocktailStore as jest.Mock).mockReturnValue(mockStore);
   });
 
-  it('should call fetchCocktail with the route param id on mount', async () => {
+  it('should call fetchCocktail with the numeric route param id on mount', async () => {
     await mountDetails('1');
     await flushPromises();
-    expect(mockStore.fetchCocktail).toHaveBeenCalledWith('1');
+    expect(mockStore.fetchCocktail).toHaveBeenCalledWith(1);
+  });
+
+  it('should not call fetchCocktail for a non-numeric id', async () => {
+    await mountDetails('abc');
+    await flushPromises();
+    expect(mockStore.fetchCocktail).not.toHaveBeenCalled();
+  });
+
+  it('should not call fetchCocktail for id 0', async () => {
+    await mountDetails('0');
+    await flushPromises();
+    expect(mockStore.fetchCocktail).not.toHaveBeenCalled();
   });
 
   it('should show the loading indicator while loading', async () => {
@@ -84,5 +99,15 @@ describe('CocktailDetails', () => {
 
     expect(wrapper.find('.not-found').exists()).toBe(true);
     expect(wrapper.html()).toContain("This cocktail doesn't exist");
+  });
+
+  it('should call deleteCocktail with the selected id when delete is clicked', async () => {
+    mockStore.selected = cocktailFixture;
+    const wrapper = await mountDetails();
+    await flushPromises();
+
+    await wrapper.find('.delete-btn').trigger('click');
+
+    expect(mockStore.deleteCocktail).toHaveBeenCalledWith(1);
   });
 });
