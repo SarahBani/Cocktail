@@ -1,58 +1,58 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { CocktailsController } from './cocktails.controller';
-import { CocktailsService } from './cocktails.service';
-import { Cocktails } from './cocktails.entity';
+import { CocktailController } from './cocktail.controller';
+import { CocktailService } from './cocktail.service';
+import { Cocktail } from './cocktail.entity';
 
-const mockCocktailsService = {
+const mockCocktailService = {
   findAll: jest.fn(),
   findOne: jest.fn(),
   create: jest.fn(),
 };
 
-const cocktailFixture: Cocktails = {
+const cocktailFixture: Cocktail = {
   id: 1,
   title: 'Mojito',
   description: 'A refreshing mint cocktail',
   price: 8.5,
 };
 
-describe('CocktailsController', () => {
-  let controller: CocktailsController;
+describe('CocktailController', () => {
+  let controller: CocktailController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CocktailsController],
-      providers: [{ provide: CocktailsService, useValue: mockCocktailsService }],
+      controllers: [CocktailController],
+      providers: [{ provide: CocktailService, useValue: mockCocktailService }],
     }).compile();
 
-    controller = module.get<CocktailsController>(CocktailsController);
+    controller = module.get<CocktailController>(CocktailController);
     jest.clearAllMocks();
   });
 
-  describe('searchCocktails', () => {
+  describe('searchCocktail', () => {
     it('should return all cocktails when no search query is provided', async () => {
-      mockCocktailsService.findAll.mockResolvedValue([cocktailFixture]);
+      mockCocktailService.findAll.mockResolvedValue([cocktailFixture]);
 
-      const result = await controller.searchCocktails(undefined);
+      const result = await controller.searchCocktail(undefined);
 
-      expect(mockCocktailsService.findAll).toHaveBeenCalledWith(undefined);
+      expect(mockCocktailService.findAll).toHaveBeenCalledWith(undefined);
       expect(result).toEqual([cocktailFixture]);
     });
 
     it('should pass the search term to the service', async () => {
-      mockCocktailsService.findAll.mockResolvedValue([cocktailFixture]);
+      mockCocktailService.findAll.mockResolvedValue([cocktailFixture]);
 
-      const result = await controller.searchCocktails('mojito');
+      const result = await controller.searchCocktail('mojito');
 
-      expect(mockCocktailsService.findAll).toHaveBeenCalledWith('mojito');
+      expect(mockCocktailService.findAll).toHaveBeenCalledWith('mojito');
       expect(result).toEqual([cocktailFixture]);
     });
 
     it('should return an empty array when no cocktails match the search', async () => {
-      mockCocktailsService.findAll.mockResolvedValue([]);
+      mockCocktailService.findAll.mockResolvedValue([]);
 
-      const result = await controller.searchCocktails('unknown');
+      const result = await controller.searchCocktail('unknown');
 
       expect(result).toEqual([]);
     });
@@ -60,16 +60,16 @@ describe('CocktailsController', () => {
 
   describe('getCocktail', () => {
     it('should return a cocktail when it exists', async () => {
-      mockCocktailsService.findOne.mockResolvedValue(cocktailFixture);
+      mockCocktailService.findOne.mockResolvedValue(cocktailFixture);
 
       const result = await controller.getCocktail(1);
 
-      expect(mockCocktailsService.findOne).toHaveBeenCalledWith(1);
+      expect(mockCocktailService.findOne).toHaveBeenCalledWith(1);
       expect(result).toEqual(cocktailFixture);
     });
 
     it('should throw NotFoundException when the cocktail does not exist', async () => {
-      mockCocktailsService.findOne.mockResolvedValue(null);
+      mockCocktailService.findOne.mockResolvedValue(null);
 
       await expect(controller.getCocktail(999)).rejects.toThrow(NotFoundException);
       await expect(controller.getCocktail(999)).rejects.toThrow('Cocktail with id 999 not found');
@@ -78,18 +78,18 @@ describe('CocktailsController', () => {
 
   describe('newCocktail', () => {
     it('should call service.create and return true on success', async () => {
-      const payload = { title: 'Daiquiri', description: 'Rum and lime', price: 9.0 } as Cocktails;
-      mockCocktailsService.create.mockResolvedValue({ identifiers: [{ id: 2 }] });
+      const payload = { title: 'Daiquiri', description: 'Rum and lime', price: 9.0 } as Cocktail;
+      mockCocktailService.create.mockResolvedValue({ identifiers: [{ id: 2 }] });
 
       const result = await controller.newCocktail(payload);
 
-      expect(mockCocktailsService.create).toHaveBeenCalledWith(payload);
+      expect(mockCocktailService.create).toHaveBeenCalledWith(payload);
       expect(result).toBe(true);
     });
 
     it('should propagate exceptions thrown by the service', async () => {
-      const payload = { title: 'Mojito', description: 'Already exists', price: 8.5 } as Cocktails;
-      mockCocktailsService.create.mockRejectedValue(
+      const payload = { title: 'Mojito', description: 'Already exists', price: 8.5 } as Cocktail;
+      mockCocktailService.create.mockRejectedValue(
         new Error('A cocktail with title "Mojito" already exists'),
       );
 

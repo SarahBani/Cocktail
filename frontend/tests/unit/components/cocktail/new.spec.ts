@@ -1,7 +1,7 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import CocktailNew from '@/components/cocktails/new.vue';
+import CocktailNew from '@/components/cocktail/new.vue';
 import { useCocktailStore } from '@/stores/cocktailStore';
 import { useNotificationStore } from '@/stores/notificationStore';
 

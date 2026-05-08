@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Cocktails } from './cocktails/cocktails.entity';
-import { CocktailsModule } from './cocktails/cocktails.module';
+import { Cocktail } from './cocktail/cocktail.entity';
+import { CocktailModule } from './cocktail/cocktail.module';
 
 @Module({
   imports: [
@@ -11,9 +11,9 @@ import { CocktailsModule } from './cocktails/cocktails.module';
       url: process.env.DATABASE_URL,
       type: 'postgres',
       logging: true,
-      entities: [Cocktails],
+      entities: [Cocktail],
     }),
-    CocktailsModule,
+    CocktailModule,
   ],
 })
 export class AppModule {}

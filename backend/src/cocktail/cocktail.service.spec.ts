@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConflictException } from '@nestjs/common';
-import { CocktailsService } from './cocktails.service';
-import { Cocktails } from './cocktails.entity';
+import { CocktailService } from './cocktail.service';
+import { Cocktail } from './cocktail.entity';
 import { ElasticSearch } from '../elasticsearch.service';
 
 const mockQueryBuilder = {
@@ -14,6 +14,7 @@ const mockRepository = {
   find: jest.fn(),
   findOneBy: jest.fn(),
   insert: jest.fn(),
+  update: jest.fn(),
   createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
 };
 
@@ -23,26 +24,26 @@ const mockElasticSearch = {
   fuzzySearch: jest.fn(),
 };
 
-const cocktailFixture: Cocktails = {
+const cocktailFixture: Cocktail = {
   id: 1,
   title: 'Mojito',
   description: 'A refreshing mint cocktail',
   price: 8.5,
 };
 
-describe('CocktailsService', () => {
-  let service: CocktailsService;
+describe('CocktailService', () => {
+  let service: CocktailService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CocktailsService,
-        { provide: getRepositoryToken(Cocktails), useValue: mockRepository },
+        CocktailService,
+        { provide: getRepositoryToken(Cocktail), useValue: mockRepository },
         { provide: ElasticSearch, useValue: mockElasticSearch },
       ],
     }).compile();
 
-    service = module.get<CocktailsService>(CocktailsService);
+    service = module.get<CocktailService>(CocktailService);
     jest.clearAllMocks();
     mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
     mockQueryBuilder.where.mockReturnThis();
@@ -146,7 +147,7 @@ describe('CocktailsService', () => {
   });
 
   describe('create', () => {
-    const newCocktail = { title: 'Daiquiri', description: 'Rum and lime', price: 9.0 } as Cocktails;
+    const newCocktail = { title: 'Daiquiri', description: 'Rum and lime', price: 9.0 } as Cocktail;
 
     it('should insert the cocktail and index it in Elasticsearch', async () => {
       mockRepository.findOneBy.mockResolvedValue(null);
@@ -178,6 +179,41 @@ describe('CocktailsService', () => {
       jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
       await expect(service.create(newCocktail)).resolves.not.toThrow();
+    });
+  });
+
+  describe('update', () => {
+    it('should update and re-index cocktail when it exists', async () => {
+      mockRepository.findOneBy.mockResolvedValueOnce(cocktailFixture);
+      mockRepository.update.mockResolvedValue({ affected: 1 });
+      mockElasticSearch.indexCocktail.mockResolvedValue(undefined);
+
+      const result = await service.update(1, { price: 10.0 });
+
+      expect(mockRepository.update).toHaveBeenCalledWith(1, { price: 10.0 });
+      expect(mockRepository.findOneBy).toHaveBeenCalledTimes(1);
+      expect(mockElasticSearch.indexCocktail).toHaveBeenCalledWith({
+        id: 1,
+        title: 'Mojito',
+        description: 'A refreshing mint cocktail',
+      });
+      expect(result).toEqual({ ...cocktailFixture, price: 10.0 });
+    });
+
+    it('should throw NotFoundException when cocktail does not exist', async () => {
+      mockRepository.findOneBy.mockResolvedValue(null);
+
+      await expect(service.update(999, { price: 10.0 })).rejects.toThrow('Cocktail with id 999 not found');
+      expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should throw ConflictException when updating to an existing title', async () => {
+      mockRepository.findOneBy
+        .mockResolvedValueOnce(cocktailFixture)
+        .mockResolvedValueOnce({ ...cocktailFixture, id: 2, title: 'Negroni' });
+
+      await expect(service.update(1, { title: 'Negroni' })).rejects.toThrow(ConflictException);
+      expect(mockRepository.update).not.toHaveBeenCalled();
     });
   });
 });

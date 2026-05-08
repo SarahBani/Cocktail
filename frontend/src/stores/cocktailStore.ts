@@ -3,6 +3,8 @@ import {
   getCocktails,
   getCocktail,
   createCocktail,
+  updateCocktail,
+  deleteCocktail,
   Cocktail,
 } from "@/services/cocktailService";
 import { useNotificationStore } from "./notificationStore";
@@ -13,7 +15,7 @@ interface CocktailState {
   loading: boolean;
 }
 
-export const useCocktailStore = defineStore("cocktails", {
+export const useCocktailStore = defineStore("cocktail", {
   state: (): CocktailState => ({
     cocktails: [],
     selected: null,
@@ -48,6 +50,32 @@ export const useCocktailStore = defineStore("cocktails", {
       try {
         await createCocktail(data);
         useNotificationStore().setSuccess("Cocktail created successfully!");
+      } catch (err: unknown) {
+        useNotificationStore().setError((err as Error).message);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async updateCocktail(id: number, data: Partial<Omit<Cocktail, "id">>) {
+      this.loading = true;
+      try { 
+        const response = await updateCocktail(id, data);
+        this.selected = response.data;
+        const idx = this.cocktails.findIndex((c: Cocktail) => c.id === id);
+        if (idx !== -1) this.cocktails[idx] = response.data;
+        useNotificationStore().setSuccess("Cocktail updated successfully!");
+      } catch (err: unknown) {
+        useNotificationStore().setError((err as Error).message);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async deleteCocktail(id: number) {
+      this.loading = true;
+      try {
+        await deleteCocktail(id);
+        this.cocktails = this.cocktails.filter((c: Cocktail) => c.id !== id);
+        useNotificationStore().setSuccess("Cocktail deleted successfully!");
       } catch (err: unknown) {
         useNotificationStore().setError((err as Error).message);
       } finally {

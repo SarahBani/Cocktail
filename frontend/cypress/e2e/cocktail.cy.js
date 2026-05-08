@@ -5,7 +5,7 @@
 
 const API = 'http://localhost:3000';
 
-const cocktails = [
+const cocktailList = [
   { id: 1, title: 'Mojito', description: 'A refreshing mint cocktail', price: 8.5 },
   { id: 2, title: 'Piña Colada', description: 'A tropical coconut delight', price: 10.0 },
 ];
@@ -14,9 +14,9 @@ const cocktails = [
 
 describe('Cocktail List page', () => {
   beforeEach(() => {
-    cy.intercept('GET', `${API}/cocktails*`, { body: cocktails }).as('getCocktails');
+    cy.intercept('GET', `${API}/cocktail*`, { body: cocktailList }).as('getCocktail');
     cy.visit('/');
-    cy.wait('@getCocktails');
+    cy.wait('@getCocktail');
   });
 
   it('should display the page heading', () => {
@@ -33,14 +33,14 @@ describe('Cocktail List page', () => {
   });
 
   it('should show "No cocktails found" when the API returns an empty list', () => {
-    cy.intercept('GET', `${API}/cocktails*`, { body: [] }).as('empty');
+    cy.intercept('GET', `${API}/cocktail*`, { body: [] }).as('empty');
     cy.visit('/');
     cy.wait('@empty');
     cy.contains('No cocktails found').should('be.visible');
   });
 
   it('should filter results when a search term is typed', () => {
-    cy.intercept('GET', `${API}/cocktails?search=mojito`, { body: [cocktails[0]] }).as('search');
+    cy.intercept('GET', `${API}/cocktail?search=mojito`, { body: [cocktailList[0]] }).as('search');
     cy.get('input#search').type('mojito');
     cy.wait('@search');
     cy.get('.cocktail-card').should('have.length', 1);
@@ -48,9 +48,9 @@ describe('Cocktail List page', () => {
   });
 
   it('should navigate to the detail page when a cocktail card is clicked', () => {
-    cy.intercept('GET', `${API}/cocktails/1`, { body: cocktails[0] }).as('getOne');
+    cy.intercept('GET', `${API}/cocktail/1`, { body: cocktailList[0] }).as('getOne');
     cy.get('.cocktail-card').first().click();
-    cy.url().should('include', '/cocktails/1');
+    cy.url().should('include', '/cocktail/1');
   });
 });
 
@@ -58,8 +58,8 @@ describe('Cocktail List page', () => {
 
 describe('Cocktail Details page', () => {
   it('should display the cocktail title, description, and price', () => {
-    cy.intercept('GET', `${API}/cocktails/1`, { body: cocktails[0] }).as('getOne');
-    cy.visit('/cocktails/1');
+    cy.intercept('GET', `${API}/cocktail/1`, { body: cocktailList[0] }).as('getOne');
+    cy.visit('/cocktail/1');
     cy.wait('@getOne');
 
     cy.get('h1').should('contain', 'Mojito');
@@ -68,12 +68,12 @@ describe('Cocktail Details page', () => {
   });
 
   it('should show an error toast and the not-found view when the cocktail is not found', () => {
-    cy.intercept('GET', `${API}/cocktails/999`, {
+    cy.intercept('GET', `${API}/cocktail/999`, {
       statusCode: 404,
       body: { detail: 'Cocktail with id 999 not found' },
     }).as('notFound');
 
-    cy.visit('/cocktails/999');
+    cy.visit('/cocktail/999');
     cy.wait('@notFound');
 
     cy.get('.toast.error').should('contain', 'Cocktail with id 999 not found');
@@ -81,9 +81,9 @@ describe('Cocktail Details page', () => {
   });
 
   it('should navigate back to the list when the back link is clicked', () => {
-    cy.intercept('GET', `${API}/cocktails/1`, { body: cocktails[0] }).as('getOne');
-    cy.intercept('GET', `${API}/cocktails*`, { body: cocktails }).as('getAll');
-    cy.visit('/cocktails/1');
+    cy.intercept('GET', `${API}/cocktail/1`, { body: cocktailList[0] }).as('getOne');
+    cy.intercept('GET', `${API}/cocktail*`, { body: cocktailList }).as('getAll');
+    cy.visit('/cocktail/1');
     cy.wait('@getOne');
 
     cy.get('.back-link').click();
@@ -106,7 +106,7 @@ describe('New Cocktail page', () => {
   });
 
   it('should show a success toast and reset the form after a successful submission', () => {
-    cy.intercept('POST', `${API}/cocktails`, { statusCode: 201, body: true }).as('create');
+    cy.intercept('POST', `${API}/cocktail`, { statusCode: 201, body: true }).as('create');
 
     cy.get('#title').type('Daiquiri');
     cy.get('#price').type('9.0');
@@ -121,7 +121,7 @@ describe('New Cocktail page', () => {
   });
 
   it('should show an error toast when the title already exists', () => {
-    cy.intercept('POST', `${API}/cocktails`, {
+    cy.intercept('POST', `${API}/cocktail`, {
       statusCode: 409,
       body: { detail: 'A cocktail with title "Daiquiri" already exists' },
     }).as('conflict');
@@ -137,7 +137,7 @@ describe('New Cocktail page', () => {
   });
 
   it('should navigate back to the list when the back link is clicked', () => {
-    cy.intercept('GET', `${API}/cocktails*`, { body: cocktails }).as('getAll');
+    cy.intercept('GET', `${API}/cocktail*`, { body: cocktailList }).as('getAll');
     cy.get('.back-link').click();
     cy.url().should('match', /\/$|#\/$/);
   });

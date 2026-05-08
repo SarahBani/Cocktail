@@ -58,4 +58,8 @@ export class ElasticSearch {
     });
     return result.hits.hits.map((hit) => Number(hit._id));
   }
+
+  async deleteCocktail(id: number) {
+    await this.client.delete({ index: INDEX, id: String(id) });
+  }
 }

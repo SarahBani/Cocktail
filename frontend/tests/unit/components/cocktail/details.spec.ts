@@ -1,7 +1,7 @@
 import { mount, flushPromises } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import CocktailDetails from '@/components/cocktails/details.vue';
+import CocktailDetails from '@/components/cocktail/details.vue';
 import { useCocktailStore } from '@/stores/cocktailStore';
 
 jest.mock('@/stores/cocktailStore', () => ({
@@ -25,12 +25,12 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/', component: { template: '<div />' } },
-    { path: '/cocktails/:id', name: 'CocktailDetails', component: { template: '<div />' } },
+    { path: '/cocktail/:id', name: 'CocktailDetails', component: { template: '<div />' } },
   ],
 });
 
 async function mountDetails(id = '1') {
-  await router.push(`/cocktails/${id}`);
+  await router.push(`/cocktail/${id}`);
   return mount(CocktailDetails, {
     global: { plugins: [router] },
   });

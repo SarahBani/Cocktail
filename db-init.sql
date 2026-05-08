@@ -1,6 +1,6 @@
 
--- Create the Cocktails table
-CREATE TABLE Cocktails (
+-- Create the Cocktail table
+CREATE TABLE Cocktail (
     id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     description TEXT,
@@ -10,8 +10,8 @@ CREATE TABLE Cocktails (
     CONSTRAINT "q_unique_title" UNIQUE ("title")
 );
 
--- Insert mocktails into the Cocktails table
-INSERT INTO Cocktails (title, description, glassType, price) VALUES
+-- Insert mocktails into the Cocktail table
+INSERT INTO Cocktail (title, description, glassType, price) VALUES
 ('Virgin Mojito', 'A refreshing mix of mint, lime, and soda water. Steps: 1. Muddle mint leaves and lime in a glass. 2. Add ice and soda water. 3. Stir well.', 'Highball', 4.50),
 ('Shirley Temple', 'A sweet and fizzy blend of ginger ale and grenadine. Steps: 1. Fill a glass with ice. 2. Add ginger ale and grenadine. 3. Garnish with a cherry.', 'Highball', 3.75),
 ('Virgin Piña Colada', 'A tropical blend of pineapple juice and coconut cream. Steps: 1. Blend pineapple juice and coconut cream with ice. 2. Pour into a chilled glass. 3. Garnish with a pineapple slice.', 'Collins', 5.00),

@@ -2,7 +2,7 @@ import { mount, flushPromises } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 import { ref } from 'vue';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import CocktailList from '@/components/cocktails/list.vue';
+import CocktailList from '@/components/cocktail/list.vue';
 import { useCocktailStore } from '@/stores/cocktailStore';
 
 jest.mock('@/stores/cocktailStore', () => ({
@@ -19,7 +19,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/', component: { template: '<div />' } },
-    { path: '/cocktails/:id', name: 'CocktailDetails', component: { template: '<div />' } },
+    { path: '/cocktail/:id', name: 'CocktailDetails', component: { template: '<div />' } },
   ],
 });
 

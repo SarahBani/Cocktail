@@ -17,19 +17,25 @@
 </template>
 
 <script>
-import ToastMessage from '@/components/toast.vue';
+import ToastMessage from "@/components/toast.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: { ToastMessage },
 };
 </script>
 
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
   background: #0f0f1a;
   color: #e8e0d5;
   min-height: 100vh;

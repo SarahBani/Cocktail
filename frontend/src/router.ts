@@ -1,8 +1,9 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
-import CocktailList from '@/components/cocktails/list.vue';
-import CocktailNew from '@/components/cocktails/new.vue';
-import CocktailDetails from '@/components/cocktails/details.vue';
+import CocktailList from '@/components/cocktail/list.vue';
+import CocktailNew from '@/components/cocktail/new.vue';
+import CocktailEdit from '@/components/cocktail/edit.vue';
+import CocktailDetails from '@/components/cocktail/details.vue';
 import NotFound from '@/components/not-found.vue';
 
 const routes = [
@@ -17,9 +18,14 @@ const routes = [
     component: CocktailNew,
   },
   {
-    path: '/cocktails/:id',
+    path: '/cocktail/:id',
     name: 'CocktailDetails',
     component: CocktailDetails,
+  },
+  {
+    path: '/cocktail/:id/edit',
+    name: 'CocktailEdit',
+    component: CocktailEdit,
   },
   {
     path: '/:pathMatch(.*)*',

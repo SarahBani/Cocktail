@@ -55,22 +55,36 @@ A full-stack web application for managing cocktail recipes. Features a searchabl
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                      Docker Network                      │
-│                                                          │
-│  ┌──────────────┐        ┌──────────────────────────┐   │
-│  │   Frontend   │──────▶ │        Backend           │   │
-│  │   Vue 3 SPA  │        │  NestJS REST API         │   │
-│  │   Port 8080  │        │  Port 3000               │   │
-│  └──────────────┘        └────────────┬─────────────┘   │
-│                                       │                  │
-│                          ┌────────────┴─────────────┐   │
-│                          │                          │   │
-│                 ┌────────▼────────┐  ┌─────────────▼─┐ │
-│                 │   PostgreSQL    │  │ Elasticsearch  │ │
-│                 │   Port 5432     │  │   Port 9200    │ │
-│                 └─────────────────┘  └───────────────┘ │
-└─────────────────────────────────────────────────────────┘
++---------------------------------------------------------+
+|                     Docker Network                      |
+|                                                         |
+|  +--------------+        +--------------------------+   |
+|  |   Frontend   | -----> |         Backend          |   |
+|  |   Vue 3 SPA  |        |    NestJS REST API       |   |
+|  |   Port 8080  |        |      Port 3000           |   |
+|  +--------------+        +------------+-------------+   |
+|                                        |                |
+|                              +---------+---------+      |
+|                              |                   |      |
+|                 +------------+----+   +----------+---+  |
+|                 |   PostgreSQL    |   | Elasticsearch|  |
+|                 |   Port 5432     |   |   Port 9200  |  |
+|                 +-----------------+   +--------------+  |
++---------------------------------------------------------+
+```
+
+```mermaid
+flowchart LR
+  subgraph DN[Docker Network]
+    FE[Frontend\nVue 3 SPA\nPort 8080]
+    BE[Backend\nNestJS REST API\nPort 3000]
+    PG[(PostgreSQL\nPort 5432)]
+    ES[(Elasticsearch\nPort 9200)]
+
+    FE --> BE
+    BE --> PG
+    BE --> ES
+  end
 ```
 
 **Search strategy**: Elasticsearch provides fuzzy full-text search on title and description fields. If Elasticsearch is unavailable, the backend automatically falls back to a PostgreSQL `LIKE` query.
@@ -191,17 +205,29 @@ Full interactive documentation is available via Swagger at **[http://localhost:3
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/cocktails` | List all cocktails. Accepts optional `?search=` query param for fuzzy search. |
-| `GET` | `/cocktails/:id` | Get a single cocktail by ID. |
-| `POST` | `/cocktails` | Create a new cocktail. |
+| `GET` | `/cocktail` | List all cocktails. Accepts optional `?search=` query param for fuzzy search. |
+| `GET` | `/cocktail/:id` | Get a single cocktail by ID. |
+| `POST` | `/cocktail` | Create a new cocktail. |
+| `PUT` | `/cocktail/:id` | Update an existing cocktail by ID. |
+| `DELETE` | `/cocktail/:id` | Delete a cocktail by ID. |
 
-### POST /cocktails — Request body
+### POST /cocktail — Request body
 
 ```json
 {
   "title": "Virgin Mojito",
   "description": "A refreshing mocktail with mint and lime.",
   "price": 8.50
+}
+```
+
+### PUT /cocktail/:id — Request body
+
+```json
+{
+  "title": "Virgin Mojito",
+  "description": "Updated description.",
+  "price": 9.00
 }
 ```
 
@@ -231,15 +257,15 @@ fullstack-nodejs-assessment/
 │   │   ├── app.module.ts       # Root module (TypeORM + config)
 │   │   ├── elasticsearch.service.ts  # Elasticsearch indexing & search
 │   │   ├── http-exception.filter.ts  # Global HTTP error handler
-│   │   └── cocktails/          # Cocktails feature module
-│   │       ├── cocktails.module.ts
-│   │       ├── cocktails.controller.ts   # Route handlers
-│   │       ├── cocktails.service.ts      # Business logic
-│   │       ├── cocktails.entity.ts       # TypeORM entity
-│   │       ├── cocktails.controller.spec.ts
-│   │       └── cocktails.service.spec.ts
+│   │   └── cocktail/           # Cocktail feature module
+│   │       ├── cocktail.module.ts
+│   │       ├── cocktail.controller.ts    # Route handlers
+│   │       ├── cocktail.service.ts       # Business logic
+│   │       ├── cocktail.entity.ts        # TypeORM entity (table: cocktail)
+│   │       ├── cocktail.controller.spec.ts
+│   │       └── cocktail.service.spec.ts
 │   ├── test/
-│   │   └── cocktails.e2e-spec.ts   # End-to-end tests
+│   │   └── cocktail.e2e-spec.ts    # End-to-end tests
 │   └── Dockerfile
 │
 └── frontend/                   # Vue 3 SPA
@@ -250,9 +276,10 @@ fullstack-nodejs-assessment/
     │   ├── components/
     │   │   ├── toast.vue       # Toast notification
     │   │   ├── not-found.vue   # 404 / not-found view
-    │   │   └── cocktails/
+    │   │   └── cocktail/
     │   │       ├── list.vue    # Cocktail list + search
     │   │       ├── new.vue     # Create cocktail form
+    │   │       ├── edit.vue    # Edit cocktail form
     │   │       └── details.vue # Cocktail detail view
     │   ├── services/
     │   │   ├── apiClient.ts    # Axios instance + interceptors
@@ -326,13 +353,13 @@ npm run test:e2e:open
 |---|---|
 | `http-exception.filter.spec.ts` | Error shape (`detail` field), status codes, string vs object responses |
 | `elasticsearch.service.spec.ts` | `checkConnection`, `indexCocktail`, `bulkIndex` (empty / errors), `fuzzySearch` |
-| `cocktails.service.spec.ts` | ES search, DB fallback on ES failure, conflict detection, graceful ES indexing failure |
-| `cocktails.controller.spec.ts` | All 3 endpoints, 404 propagation, `true` return on create |
+| `cocktail.service.spec.ts` | ES search, DB fallback on ES failure, conflict detection, graceful ES indexing failure |
+| `cocktail.controller.spec.ts` | All endpoints, 404 propagation, `true` return on create |
 
 #### Backend integration tests (`npm run test:e2e`)
 | File | Covers |
 |---|---|
-| `test/cocktails.e2e-spec.ts` | Full HTTP pipeline via supertest — `ParseIntPipe` (400 on bad id), 404/409 response body shape with `HttpExceptionFilter` |
+| `test/cocktail.e2e-spec.ts` | Full HTTP pipeline via supertest — `ParseIntPipe` (400 on bad id), 404/409 response body shape with `HttpExceptionFilter` |
 
 #### Frontend unit tests (`npm test`)
 | File | Covers |
@@ -341,9 +368,9 @@ npm run test:e2e:open
 | `stores/cocktailStore.spec.ts` | All 3 actions, loading flag, error→notification wiring |
 | `services/cocktailService.spec.ts` | GET/POST calls, 404/409 error `detail` propagation via axios-mock-adapter |
 | `components/toast.spec.ts` | Visibility, `error`/`success` CSS class, click to dismiss |
-| `components/cocktails/list.spec.ts` | Loading state, empty state, item rendering, search input |
-| `components/cocktails/new.spec.ts` | Form submit, reset on success notification, no reset on error |
-| `components/cocktails/details.spec.ts` | Loading state, cocktail data rendered, not-found view when no cocktail |
+| `components/cocktail/list.spec.ts` | Loading state, empty state, item rendering, search input |
+| `components/cocktail/new.spec.ts` | Form submit, reset on success notification, no reset on error |
+| `components/cocktail/details.spec.ts` | Loading state, cocktail data rendered, not-found view when no cocktail |
 
 #### Frontend E2E tests (`npm run test:e2e`)
 | Suite | Covers |
