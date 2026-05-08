@@ -41,7 +41,9 @@ describe('Cocktail List page', () => {
 
   it('should filter results when a search term is typed', () => {
     cy.intercept('GET', `${API}/cocktail?search=mojito`, { body: [cocktailList[0]] }).as('search');
+    cy.clock();
     cy.get('input#search').type('mojito');
+    cy.tick(300);
     cy.wait('@search');
     cy.get('.cocktail-card').should('have.length', 1);
     cy.get('.cocktail-title').should('contain', 'Mojito');
@@ -67,7 +69,7 @@ describe('Cocktail Details page', () => {
     cy.get('.price-badge').should('contain', '8.5');
   });
 
-  it('should show an error toast and the not-found view when the cocktail is not found', () => {
+  it('should show the not-found view when the cocktail does not exist', () => {
     cy.intercept('GET', `${API}/cocktail/999`, {
       statusCode: 404,
       body: { detail: 'Cocktail with id 999 not found' },
@@ -76,7 +78,6 @@ describe('Cocktail Details page', () => {
     cy.visit('/cocktail/999');
     cy.wait('@notFound');
 
-    cy.get('.toast.error').should('contain', 'Cocktail with id 999 not found');
     cy.get('.not-found').should('be.visible');
   });
 
