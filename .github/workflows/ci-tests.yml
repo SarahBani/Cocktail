@@ -128,7 +128,7 @@ jobs:
 
       - name: Run integration tests
         if: steps.changes.outputs.backend == 'true'
-        run: npm run test:e2e
+        run: npm run test:e2e -- --runInBand
 
       - name: Skip (no backend changes)
         if: steps.changes.outputs.backend != 'true'
@@ -159,9 +159,10 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
+          install-command: npm ci
           start: npm run serve
           wait-on: 'http://localhost:8080'
-          wait-on-timeout: 60
+          wait-on-timeout: 180
 
       - name: Skip (no frontend changes)
         if: steps.changes.outputs.frontend != 'true'

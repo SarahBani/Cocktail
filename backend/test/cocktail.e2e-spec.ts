@@ -1,4 +1,4 @@
-import request from 'supertest';
+import request = require('supertest');
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ConflictException } from '@nestjs/common';
 import { CocktailController } from '../src/cocktail/cocktail.controller';
