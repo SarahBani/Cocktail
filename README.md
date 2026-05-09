@@ -1,4 +1,6 @@
-# Cocktail Bar — Fullstack Node.js Assessment
+<p align="center" style="font-size: 64px; margin: 0;">🍹</p>
+
+# 🍹 Cocktail Bar — Fullstack Node.js Assessment
 
 A full-stack web application for managing cocktail recipes. Features a searchable list, detailed views, and the ability to create new cocktails. Built as a technical assessment.
 
