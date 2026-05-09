@@ -16,6 +16,8 @@ A full-stack web application for managing cocktail recipes. Features a searchabl
 - [API Reference](#api-reference)
 - [Project Structure](#project-structure)
 - [Testing](#testing)
+- [CI / GitHub Actions](#ci--github-actions)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -397,6 +399,37 @@ npm run test:e2e:open
 | **Cocktail List** | Page heading, card rendering, title/price display, empty state, search filtering, navigate to detail |
 | **Cocktail Details** | Title/description/price rendered, not-found view + error toast on 404, back link navigation |
 | **New Cocktail form** | Field rendering, success toast + form reset, conflict error toast, back link |
+
+---
+
+## CI / GitHub Actions
+
+The repository includes a GitHub Actions workflow at `.github/workflows/ci-tests.yml` that runs automatically on every push and pull request.
+
+#### Jobs
+
+| Job | Trigger | What it runs |
+|---|---|---|
+| Backend Unit Tests | push / PR | `npm test` in `backend/` |
+| Frontend Unit Tests | push / PR | `npm test` in `frontend/` |
+| Backend Integration Tests | after unit tests pass | `npm run test:e2e` in `backend/` (supertest, no real DB needed) |
+| Frontend E2E Tests (Cypress) | after unit tests pass | Starts dev server, waits for it, runs Cypress |
+
+#### Path filtering
+
+Each job only runs when files in its folder change. Pushing only to `backend/` skips frontend jobs and vice-versa. Changes to the workflow file itself trigger all jobs.
+
+#### Concurrency
+
+A concurrency group cancels older in-progress runs on the same branch when a new push arrives, keeping the CI queue clean.
+
+#### Branch protection (recommended)
+
+In GitHub → Settings → Branches → Add rule, enable **Require status checks to pass** and select:
+- `Backend Unit Tests`
+- `Frontend Unit Tests`
+- `Backend Integration Tests`
+- `Frontend E2E Tests (Cypress)`
 
 ---
 
