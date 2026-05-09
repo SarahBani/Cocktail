@@ -1,5 +1,3 @@
-<p align="center" style="font-size: 64px; margin: 0;">🍹</p>
-
 # 🍹 Cocktail Bar — Fullstack Node.js Assessment
 
 A full-stack web application for managing cocktail recipes. Features a searchable list, detailed views, and the ability to create new cocktails. Built as a technical assessment.
@@ -26,33 +24,36 @@ A full-stack web application for managing cocktail recipes. Features a searchabl
 ## Tech Stack
 
 ### Backend
-| Technology | Version | Purpose |
-|---|---|---|
-| [NestJS](https://nestjs.com/) | 10.x | REST API framework |
-| [TypeScript](https://www.typescriptlang.org/) | 5.x | Language |
-| [PostgreSQL](https://www.postgresql.org/) | 13 | Primary database |
-| [TypeORM](https://typeorm.io/) | 0.3.x | ORM / database access |
-| [Elasticsearch](https://www.elastic.co/) | 8.6 | Full-text fuzzy search |
-| [Swagger / OpenAPI](https://swagger.io/) | — | API documentation |
-| [Jest](https://jestjs.io/) | 29.x | Unit & E2E testing |
+
+| Technology                                    | Version | Purpose                |
+| --------------------------------------------- | ------- | ---------------------- |
+| [NestJS](https://nestjs.com/)                 | 10.x    | REST API framework     |
+| [TypeScript](https://www.typescriptlang.org/) | 5.x     | Language               |
+| [PostgreSQL](https://www.postgresql.org/)     | 13      | Primary database       |
+| [TypeORM](https://typeorm.io/)                | 0.3.x   | ORM / database access  |
+| [Elasticsearch](https://www.elastic.co/)      | 8.6     | Full-text fuzzy search |
+| [Swagger / OpenAPI](https://swagger.io/)      | —       | API documentation      |
+| [Jest](https://jestjs.io/)                    | 29.x    | Unit & E2E testing     |
 
 ### Frontend
-| Technology | Version | Purpose |
-|---|---|---|
-| [Vue 3](https://vuejs.org/) | 3.2.x | UI framework |
-| [Vue Router](https://router.vuejs.org/) | 4.x | Client-side routing |
-| [Pinia](https://pinia.vuejs.org/) | 3.x | State management |
-| [Axios](https://axios-http.com/) | 1.x | HTTP client |
-| [Jest](https://jestjs.io/) | 29.x | Unit testing |
-| [Vue Test Utils](https://test-utils.vuejs.org/) | 2.x | Component testing |
-| [Cypress](https://www.cypress.io/) | 13.x | E2E browser testing |
+
+| Technology                                      | Version | Purpose             |
+| ----------------------------------------------- | ------- | ------------------- |
+| [Vue 3](https://vuejs.org/)                     | 3.2.x   | UI framework        |
+| [Vue Router](https://router.vuejs.org/)         | 4.x     | Client-side routing |
+| [Pinia](https://pinia.vuejs.org/)               | 3.x     | State management    |
+| [Axios](https://axios-http.com/)                | 1.x     | HTTP client         |
+| [Jest](https://jestjs.io/)                      | 29.x    | Unit testing        |
+| [Vue Test Utils](https://test-utils.vuejs.org/) | 2.x     | Component testing   |
+| [Cypress](https://www.cypress.io/)              | 13.x    | E2E browser testing |
 
 ### Infrastructure
-| Technology | Purpose |
-|---|---|
-| Docker | Containerization |
-| Docker Compose | Local multi-service orchestration |
-| Node.js 20 Alpine | Base image |
+
+| Technology        | Purpose                           |
+| ----------------- | --------------------------------- |
+| Docker            | Containerization                  |
+| Docker Compose    | Local multi-service orchestration |
+| Node.js 20 Alpine | Base image                        |
 
 ---
 
@@ -125,6 +126,7 @@ docker-compose up --build
 ```
 
 This command starts four services:
+
 - **Frontend** — Vue 3 dev server at [http://localhost:8080](http://localhost:8080)
 - **Backend** — NestJS API at [http://localhost:3000](http://localhost:3000)
 - **PostgreSQL** — Database at `localhost:5432`
@@ -204,16 +206,16 @@ npm run serve
 
 ### Backend (`backend/.env`)
 
-| Variable | Default | Description |
-|---|---|---|
-| `PORT` | `3000` | Port the NestJS server listens on |
-| `DATABASE_URL` | `postgres://user:password@localhost:5432/mydatabase` | PostgreSQL connection string |
-| `ELASTICSEARCH_HOST` | `http://localhost:9200` | Elasticsearch base URL |
+| Variable             | Default                                              | Description                       |
+| -------------------- | ---------------------------------------------------- | --------------------------------- |
+| `PORT`               | `3000`                                               | Port the NestJS server listens on |
+| `DATABASE_URL`       | `postgres://user:password@localhost:5432/mydatabase` | PostgreSQL connection string      |
+| `ELASTICSEARCH_HOST` | `http://localhost:9200`                              | Elasticsearch base URL            |
 
 ### Frontend (`frontend/.env`)
 
-| Variable | Default | Description |
-|---|---|---|
+| Variable          | Default                 | Description          |
+| ----------------- | ----------------------- | -------------------- |
 | `VUE_APP_API_URL` | `http://localhost:3000` | Backend API base URL |
 
 ---
@@ -224,13 +226,13 @@ Full interactive documentation is available via Swagger at **[http://localhost:3
 
 ### Endpoints
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/cocktail` | List all cocktails. Accepts optional `?search=` query param for fuzzy search. |
-| `GET` | `/cocktail/:id` | Get a single cocktail by ID. |
-| `POST` | `/cocktail` | Create a new cocktail. |
-| `PUT` | `/cocktail/:id` | Update an existing cocktail by ID. |
-| `DELETE` | `/cocktail/:id` | Delete a cocktail by ID. |
+| Method   | Endpoint        | Description                                                                   |
+| -------- | --------------- | ----------------------------------------------------------------------------- |
+| `GET`    | `/cocktail`     | List all cocktails. Accepts optional `?search=` query param for fuzzy search. |
+| `GET`    | `/cocktail/:id` | Get a single cocktail by ID.                                                  |
+| `POST`   | `/cocktail`     | Create a new cocktail.                                                        |
+| `PUT`    | `/cocktail/:id` | Update an existing cocktail by ID.                                            |
+| `DELETE` | `/cocktail/:id` | Delete a cocktail by ID.                                                      |
 
 ### POST /cocktail — Request body
 
@@ -238,7 +240,7 @@ Full interactive documentation is available via Swagger at **[http://localhost:3
 {
   "title": "Virgin Mojito",
   "description": "A refreshing mocktail with mint and lime.",
-  "price": 8.50
+  "price": 8.5
 }
 ```
 
@@ -248,7 +250,7 @@ Full interactive documentation is available via Swagger at **[http://localhost:3
 {
   "title": "Virgin Mojito",
   "description": "Updated description.",
-  "price": 9.00
+  "price": 9.0
 }
 ```
 
@@ -372,35 +374,39 @@ npm run test:e2e:open
 ### What is tested
 
 #### Backend unit tests (`npm test`)
-| File | Covers |
-|---|---|
-| `http-exception.filter.spec.ts` | Error shape (`detail` field), status codes, string vs object responses |
-| `elasticsearch.service.spec.ts` | `checkConnection`, `indexCocktail`, `bulkIndex` (empty / errors), `fuzzySearch` |
-| `cocktail.service.spec.ts` | ES search, DB fallback on ES failure, conflict detection, graceful ES indexing failure |
-| `cocktail.controller.spec.ts` | All endpoints, 404 propagation, `true` return on create |
+
+| File                            | Covers                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------- |
+| `http-exception.filter.spec.ts` | Error shape (`detail` field), status codes, string vs object responses                 |
+| `elasticsearch.service.spec.ts` | `checkConnection`, `indexCocktail`, `bulkIndex` (empty / errors), `fuzzySearch`        |
+| `cocktail.service.spec.ts`      | ES search, DB fallback on ES failure, conflict detection, graceful ES indexing failure |
+| `cocktail.controller.spec.ts`   | All endpoints, 404 propagation, `true` return on create                                |
 
 #### Backend integration tests (`npm run test:e2e`)
-| File | Covers |
-|---|---|
+
+| File                        | Covers                                                                                                                    |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `test/cocktail.e2e-spec.ts` | Full HTTP pipeline via supertest — `ParseIntPipe` (400 on bad id), 404/409 response body shape with `HttpExceptionFilter` |
 
 #### Frontend unit tests (`npm test`)
-| File | Covers |
-|---|---|
-| `stores/notificationStore.spec.ts` | `setError`, `setSuccess`, `clear`, overwrite behaviour |
-| `stores/cocktailStore.spec.ts` | All 3 actions, loading flag, error→notification wiring |
-| `services/cocktailService.spec.ts` | GET/POST calls, 404/409 error `detail` propagation via axios-mock-adapter |
-| `components/toast.spec.ts` | Visibility, `error`/`success` CSS class, click to dismiss |
-| `components/cocktail/list.spec.ts` | Loading state, empty state, item rendering, search input |
-| `components/cocktail/new.spec.ts` | Form submit, reset on success notification, no reset on error |
-| `components/cocktail/details.spec.ts` | Loading state, cocktail data rendered, not-found view when no cocktail |
+
+| File                                  | Covers                                                                    |
+| ------------------------------------- | ------------------------------------------------------------------------- |
+| `stores/notificationStore.spec.ts`    | `setError`, `setSuccess`, `clear`, overwrite behaviour                    |
+| `stores/cocktailStore.spec.ts`        | All 3 actions, loading flag, error→notification wiring                    |
+| `services/cocktailService.spec.ts`    | GET/POST calls, 404/409 error `detail` propagation via axios-mock-adapter |
+| `components/toast.spec.ts`            | Visibility, `error`/`success` CSS class, click to dismiss                 |
+| `components/cocktail/list.spec.ts`    | Loading state, empty state, item rendering, search input                  |
+| `components/cocktail/new.spec.ts`     | Form submit, reset on success notification, no reset on error             |
+| `components/cocktail/details.spec.ts` | Loading state, cocktail data rendered, not-found view when no cocktail    |
 
 #### Frontend E2E tests (`npm run test:e2e`)
-| Suite | Covers |
-|---|---|
-| **Cocktail List** | Page heading, card rendering, title/price display, empty state, search filtering, navigate to detail |
-| **Cocktail Details** | Title/description/price rendered, not-found view + error toast on 404, back link navigation |
-| **New Cocktail form** | Field rendering, success toast + form reset, conflict error toast, back link |
+
+| Suite                 | Covers                                                                                               |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Cocktail List**     | Page heading, card rendering, title/price display, empty state, search filtering, navigate to detail |
+| **Cocktail Details**  | Title/description/price rendered, not-found view + error toast on 404, back link navigation          |
+| **New Cocktail form** | Field rendering, success toast + form reset, conflict error toast, back link                         |
 
 ---
 
@@ -410,12 +416,12 @@ The repository includes a GitHub Actions workflow at `.github/workflows/ci-tests
 
 #### Jobs
 
-| Job | Trigger | What it runs |
-|---|---|---|
-| Backend Unit Tests | push / PR | `npm test` in `backend/` |
-| Frontend Unit Tests | push / PR | `npm test` in `frontend/` |
-| Backend Integration Tests | after unit tests pass | `npm run test:e2e` in `backend/` (supertest, no real DB needed) |
-| Frontend E2E Tests (Cypress) | after unit tests pass | Starts dev server, waits for it, runs Cypress |
+| Job                          | Trigger               | What it runs                                                    |
+| ---------------------------- | --------------------- | --------------------------------------------------------------- |
+| Backend Unit Tests           | push / PR             | `npm test` in `backend/`                                        |
+| Frontend Unit Tests          | push / PR             | `npm test` in `frontend/`                                       |
+| Backend Integration Tests    | after unit tests pass | `npm run test:e2e` in `backend/` (supertest, no real DB needed) |
+| Frontend E2E Tests (Cypress) | after unit tests pass | Starts dev server, waits for it, runs Cypress                   |
 
 #### Path filtering
 
@@ -428,6 +434,7 @@ A concurrency group cancels older in-progress runs on the same branch when a new
 #### Branch protection (recommended)
 
 In GitHub → Settings → Branches → Add rule, enable **Require status checks to pass** and select:
+
 - `Backend Unit Tests`
 - `Frontend Unit Tests`
 - `Backend Integration Tests`
