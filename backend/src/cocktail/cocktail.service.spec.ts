@@ -15,12 +15,14 @@ const mockRepository = {
   findOneBy: jest.fn(),
   insert: jest.fn(),
   update: jest.fn(),
+  delete: jest.fn(),
   createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
 };
 
 const mockElasticSearch = {
   bulkIndex: jest.fn(),
   indexCocktail: jest.fn(),
+  deleteCocktail: jest.fn(),
   fuzzySearch: jest.fn(),
 };
 
@@ -214,6 +216,35 @@ describe('CocktailService', () => {
 
       await expect(service.update(1, { title: 'Negroni' })).rejects.toThrow(ConflictException);
       expect(mockRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should not throw when Elasticsearch re-index fails after update', async () => {
+      mockRepository.findOneBy.mockResolvedValueOnce(cocktailFixture);
+      mockRepository.update.mockResolvedValue({ affected: 1 });
+      mockElasticSearch.indexCocktail.mockRejectedValue(new Error('ES down'));
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      await expect(service.update(1, { price: 10.0 })).resolves.not.toThrow();
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete the cocktail and remove it from Elasticsearch', async () => {
+      mockRepository.delete.mockResolvedValue({ affected: 1 });
+      mockElasticSearch.deleteCocktail.mockResolvedValue(undefined);
+
+      await service.delete(1);
+
+      expect(mockRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockElasticSearch.deleteCocktail).toHaveBeenCalledWith(1);
+    });
+
+    it('should not throw when Elasticsearch delete fails', async () => {
+      mockRepository.delete.mockResolvedValue({ affected: 1 });
+      mockElasticSearch.deleteCocktail.mockRejectedValue(new Error('ES down'));
+      jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      await expect(service.delete(1)).resolves.not.toThrow();
     });
   });
 });

@@ -4,6 +4,7 @@ const mockPing = jest.fn();
 const mockIndex = jest.fn();
 const mockBulk = jest.fn();
 const mockSearch = jest.fn();
+const mockDelete = jest.fn();
 
 jest.mock('@elastic/elasticsearch', () => ({
   Client: jest.fn().mockImplementation(() => ({
@@ -11,6 +12,7 @@ jest.mock('@elastic/elasticsearch', () => ({
     index: mockIndex,
     bulk: mockBulk,
     search: mockSearch,
+    delete: mockDelete,
   })),
 }));
 
@@ -23,6 +25,7 @@ describe('ElasticSearch', () => {
     mockIndex.mockResolvedValue({});
     mockBulk.mockResolvedValue({ errors: false, items: [] });
     mockSearch.mockResolvedValue({ hits: { hits: [{ _id: '1' }, { _id: '2' }] } });
+    mockDelete.mockResolvedValue({});
 
     process.env.ELASTICSEARCH_HOST = 'http://localhost:9200';
     service = new ElasticSearch();
@@ -117,6 +120,18 @@ describe('ElasticSearch', () => {
       mockSearch.mockResolvedValueOnce({ hits: { hits: [] } });
       const ids = await service.fuzzySearch('xyz');
       expect(ids).toEqual([]);
+    });
+  });
+
+  describe('deleteCocktail', () => {
+    it('should call delete with the correct index and string id', async () => {
+      await service.deleteCocktail(7);
+      expect(mockDelete).toHaveBeenCalledWith({ index: 'cocktails', id: '7' });
+    });
+
+    it('should convert numeric id to string for the document _id', async () => {
+      await service.deleteCocktail(42);
+      expect(mockDelete).toHaveBeenCalledWith(expect.objectContaining({ id: '42' }));
     });
   });
 });

@@ -8,6 +8,8 @@ const mockCocktailService = {
   findAll: jest.fn(),
   findOne: jest.fn(),
   create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
 };
 
 const cocktailFixture: Cocktail = {
@@ -94,6 +96,46 @@ describe('CocktailController', () => {
       );
 
       await expect(controller.newCocktail(payload)).rejects.toThrow();
+    });
+  });
+
+  describe('updateCocktail', () => {
+    it('should return the updated cocktail when it exists', async () => {
+      const updated = { ...cocktailFixture, price: 10.0 };
+      mockCocktailService.findOne.mockResolvedValue(cocktailFixture);
+      mockCocktailService.update.mockResolvedValue(updated);
+
+      const result = await controller.updateCocktail(1, { price: 10.0 });
+
+      expect(mockCocktailService.findOne).toHaveBeenCalledWith(1);
+      expect(mockCocktailService.update).toHaveBeenCalledWith(1, { price: 10.0 });
+      expect(result).toEqual(updated);
+    });
+
+    it('should throw NotFoundException when the cocktail does not exist', async () => {
+      mockCocktailService.findOne.mockResolvedValue(null);
+
+      await expect(controller.updateCocktail(999, { price: 10.0 })).rejects.toThrow(NotFoundException);
+      expect(mockCocktailService.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteCocktail', () => {
+    it('should delete the cocktail when it exists', async () => {
+      mockCocktailService.findOne.mockResolvedValue(cocktailFixture);
+      mockCocktailService.delete.mockResolvedValue(undefined);
+
+      await controller.deleteCocktail(1);
+
+      expect(mockCocktailService.findOne).toHaveBeenCalledWith(1);
+      expect(mockCocktailService.delete).toHaveBeenCalledWith(1);
+    });
+
+    it('should throw NotFoundException when the cocktail does not exist', async () => {
+      mockCocktailService.findOne.mockResolvedValue(null);
+
+      await expect(controller.deleteCocktail(999)).rejects.toThrow(NotFoundException);
+      expect(mockCocktailService.delete).not.toHaveBeenCalled();
     });
   });
 });
